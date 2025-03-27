@@ -12,7 +12,12 @@ import opennlp.tools.util.TrainingParameters;
 
 import java.io.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class NERTrainer {
+	
+	private final static Logger logger = LogManager.getLogger(NERTrainer.class);
 
     private static final String TRAINING_FILE = "src/main/resources/models/lottery-ner.train";
     private static final String MODEL_FILE = "src/main/resources/models/lottery-ner-model.bin";
@@ -60,10 +65,10 @@ public class NERTrainer {
                 model.serialize(modelOut);
             }
 
-            System.out.println("✅ NER model trained and saved successfully!");
+            logger.info("✅ NER model trained and saved successfully!");
 
         } catch (Exception e) {
-            System.err.println("❌ Error training NER model: " + e.getMessage());
+            logger.error("❌ Error training NER model: " + e.getMessage());
         }
     }
 }
