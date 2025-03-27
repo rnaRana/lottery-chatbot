@@ -12,8 +12,12 @@ import opennlp.tools.util.TrainingParameters;
 
 import java.io.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class IntentTrainer {
 
+	private final static Logger logger = LogManager.getLogger(IntentTrainer.class);
     private static final String TRAINING_FILE = "src/main/resources/models/intents.train";
     private static final String MODEL_FILE = "src/main/resources/models/intents-model.bin";
 
@@ -31,6 +35,7 @@ public class IntentTrainer {
             ObjectStream<DocumentSample> sampleStream = new ObjectStream<>() {
                 @Override
                 public DocumentSample read() throws IOException {
+                
                     String line = lineStream.read();
                     if (line == null) return null;
 
@@ -74,10 +79,10 @@ public class IntentTrainer {
                 model.serialize(modelOut);
             }
 
-            System.out.println("✅ Intent classification model trained and saved successfully!");
+            logger.info("✅ Intent classification model trained and saved successfully!");
 
         } catch (Exception e) {
-            System.err.println("❌ Error training intent model: " + e.getMessage());
+            logger.error("❌ Error training intent model: " + e.getMessage());
         }
     }
 }

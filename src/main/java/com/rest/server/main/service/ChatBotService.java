@@ -1,24 +1,29 @@
 package com.rest.server.main.service;
 
-import com.rest.server.main.model.QuestionAnswer;
-import com.rest.server.main.repository.QuestionAnswerRepository;
-import opennlp.tools.doccat.DoccatModel;
-import opennlp.tools.doccat.DocumentCategorizerME;
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinderModel;
-import opennlp.tools.tokenize.SimpleTokenizer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import jakarta.annotation.PostConstruct;
-import java.io.*;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.rest.server.main.model.QuestionAnswer;
+import com.rest.server.main.repository.QuestionAnswerRepository;
+
+import jakarta.annotation.PostConstruct;
+import opennlp.tools.doccat.DoccatModel;
+import opennlp.tools.doccat.DocumentCategorizerME;
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinderModel;
+
 @Service
 public class ChatBotService {
+	
+	private final static Logger logger = LogManager.getLogger(ChatBotService.class);
 
     private final QuestionAnswerRepository questionAnswerRepository;
     private DoccatModel intentModel;
@@ -44,7 +49,7 @@ public class ChatBotService {
                 nerModel = new TokenNameFinderModel(nerStream);
             }
 
-            System.out.println("✅ Models loaded successfully!");
+            logger.info("✅ Models loaded successfully!");
 
         } catch (Exception e) {
             throw new RuntimeException("Error loading models: " + e.getMessage());
@@ -56,20 +61,20 @@ public class ChatBotService {
             throw new IllegalStateException("Models are not loaded.");
         }
 
-        System.out.println("📝 Received message: " + input);
+        logger.info("📝 Received message: " + input);
 
         // Detect intent
         String intent = detectIntent(input);
-        System.out.println("🎯 Detected intent: " + intent);
+        logger.info("🎯 Detected intent: " + intent);
 
         // Extract entities
         List<String> entities = extractEntities(input);
-        System.out.println("🔍 Extracted entities: " + entities);
+        logger.info("🔍 Extracted entities: " + entities);
 
         // Check database for stored answers
         Optional<QuestionAnswer> dbResponse = questionAnswerRepository.findByQuestion(input);
         if (dbResponse.isPresent()) {
-            System.out.println("📌 Found answer in database: " + dbResponse.get().getAnswer());
+            logger.info("📌 Found answer in database: " + dbResponse.get().getAnswer());
             return dbResponse.get().getAnswer();
         }
 
@@ -92,9 +97,9 @@ public class ChatBotService {
         
 
         // Debugging logs
-        System.out.println("🔍 Tokens: " + Arrays.toString(tokens));
+        logger.info("🔍 Tokens: " + Arrays.toString(tokens));
         for(var span : spans) {
-        	System.out.println("🔍 Detected entity: " + span.toString());
+        	logger.info("🔍 Detected entity: " + span.toString());
         }
         
         //Extract and return entity names
